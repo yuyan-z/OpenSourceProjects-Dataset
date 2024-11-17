@@ -15,4 +15,4 @@ def get_repositories():
 if __name__ == "__main__":
     data = get_repositories()
     print(f"Total repositories: {data['total_count']}")
-    save_json(data, "repositories_python.json")
+    save_json(data, "data/repositories_python.json")
