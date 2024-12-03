@@ -11,10 +11,10 @@ class GithubSpider(scrapy.Spider):
     name = "github"
     allowed_domains = ["github.com"]
 
-    repositories = load_json("D:\OpenSourceProjects-Dataset\data\\urls.json")
-    start_urls = jmespath.search('[*].html_url', repositories)
+    # repositories = load_json("D:\OpenSourceProjects-Dataset\data\\urls.json")
+    # start_urls = jmespath.search('[*].html_url', repositories)
 
-    # start_urls = ["https://github.com/freeCodeCamp/freeCodeCamp"]
+    start_urls = ["https://github.com/freeCodeCamp/freeCodeCamp"]
     # start_urls = ["https://github.com/labuladong/fucking-algorithm"]
     # start_urls = ["https://github.com/labuladong"]
     # start_urls = ["https://github.com/freeCodeCamp"]
@@ -22,8 +22,8 @@ class GithubSpider(scrapy.Spider):
     def parse(self, response):
         # with open(file='results.html', mode='w', encoding='utf-8') as f:
         #     f.write(response.text)
-        if response.status != 200:
-            sys.exit()
+        # if response.status != 200:
+        #     sys.exit()
 
         commits = response.css('#history-icon-button-tooltip::attr(aria-label)').get()
         if commits:
@@ -53,8 +53,8 @@ class GithubSpider(scrapy.Spider):
 
 
     def parse_owner(self, response):
-        if response.status != 200:
-            sys.exit()
+        # if response.status != 200:
+        #     sys.exit()
 
         followers_elem = response.css('a[href*="followers"]')
         followers = followers_elem.css('span::text').get()
@@ -74,7 +74,6 @@ class GithubSpider(scrapy.Spider):
                 "location": location
             }
         }
-        time.sleep(2)
 
         yield item
 
