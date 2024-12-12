@@ -4,13 +4,12 @@ import time
 import requests
 import jmespath
 
-from utils import save_json, get_last_file_name, load_all_json, load_json
-
+from utils import save_json, get_last_file_name, load_all_json, load_json, add_to_json
 
 token = ''
 HEADERS = {
     'Accept': 'application/vnd.github+json',
-    'Authorization': token
+    'Authorization': f'token {token}'
 }
 
 
@@ -35,7 +34,7 @@ def get_all_page(url, params):
     return results
 
 
-def get_repositories_by_stars(stars=10000):
+def get_repos_by_stars(stars=10000):
     url = 'https://api.github.com/search/repositories'
     params = {
         "q": f"is:public stars:>={stars}",
@@ -65,38 +64,76 @@ def get_repositories_by_stars(stars=10000):
         print(f"Getting repositories with stars:{begin}..{end}")
         params["q"] = f"is:public stars:{begin}..{end}"
         response_json = get_all_page(url, params)
-        repositories = jmespath.search('[*].items[*]', response_json)
-        repositories = sum(repositories, [])
-        if len(repositories) > 0:
-            print(f"Number of repositories: {len(repositories)}")
-            save_json(repositories, f"data/repository/stars_{begin}_{end}.json")
+        repos = jmespath.search('[*].items[*]', response_json)
+        repos = sum(repos, [])
+        if len(repos) > 0:
+            print(f"Number of repositories: {len(repos)}")
+            save_json(repos, f"data/repository/stars_{begin}_{end}.json")
     except Exception as e:
         print(e)
 
 
 def get_languages():
-    repositories = load_json("data/repositories.json")
+    repos = load_json("data/repositories.json")
     languages = load_json("data/languages.json")
 
-    begin = len(languages)
+    ids = jmespath.search('[*].id', languages)
+
+    rs = [repo for repo in repos if repo["id"] not in ids]
+    print('len rs', len(rs))
+
     print(f"Getting languages for repository...")
-    for i, repository in enumerate(repositories[begin:]):
+    for i, repo in enumerate(rs):
         print(f"{i}")
-        languages_url = repository["languages_url"]
+        languages_url = repo["languages_url"]
         response = requests.get(languages_url, headers=HEADERS)
         if response.status_code == 200:
             response_json = response.json()
-            languages.append({"id": repository["id"], "languages": response_json})
+            languages.append({"id": repo["id"], "languages": response_json})
             time.sleep(3)
         else:
             print(f"Error: status code {response.status_code}")
             print(len(languages))
             save_json(languages, "data/languages.json")
-            break
+            t = int(response.headers['X-RateLimit-Reset']) - int(time.time())
+            if t < 0: t = 0
+            print(f"sleep: {t + 60}")
+            time.sleep(t)
+            # break
+    save_json(languages, "data/languages.json")
+
+
+def get_issue():
+    repos = load_json("data/repositories.json")
+    for i, repo in enumerate(repos):
+        print(f"{i}")
+        issues_url = repo["issues_url"]
+        # pulls_url = repo["pulls_url"]
+        params = {
+            "q": f"is:issue",
+            "sort": "comments"
+        }
+
+        response = requests.get(issues_url, headers=HEADERS, params=params)
+        if response.status_code == 200:
+            response_json = response.json()
+            add_to_json(response_json, "data/issues.json")
+            time.sleep(1)
+        else:
+            print(f"Error: status code {response.status_code}")
+            print(response.headers)
+            t = int(response.headers['X-RateLimit-Reset']) - int(time.time())
+            if t < 0: t = 0
+            print(f"sleep: {t + 60}")
+            time.sleep(t)
+        break
 
 
 if __name__ == "__main__":
     # # Get repositories
-    # repositories = get_repositories_by_stars()
+    # repos = get_repos_by_stars()
     #
-    languages = get_languages()
+    # get_languages()
+    get_issue()
+
+
