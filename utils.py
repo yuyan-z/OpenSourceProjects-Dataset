@@ -20,6 +20,12 @@ def load_json(filename):
     return data
 
 
+def add_to_json(data, filename):
+    with open(filename, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(data) + ",\n")
+
+
+
 def load_all_json(folder_path):
     data_list = []
 
@@ -40,20 +46,21 @@ def get_last_file_name(folder_path):
     return last_file_name
 
 
-def kstring_to_int(s):
+def string_to_int(s):
     if s:
         if s.endswith('k'):
             return int(float(s[:-1]) * 1000)
         else:
+            s = s.replace(',', '')
             return int(s)
     else:
         return None
 
 
 if __name__ == '__main__':
-    # repositories = load_json("data/repositories.json")
+    # repos = load_json("data/repositories.json")
     # items = load_json("data/items1.json")
-    # html_urls = jmespath.search('[*].html_url', repositories)
+    # html_urls = jmespath.search('[*].html_url', repos)
     # items_urls = jmespath.search('[*].url', items)
     # urls = [url for url in html_urls if url not in items_urls]
     # print(len(urls))

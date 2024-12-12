@@ -3,7 +3,7 @@ from scrapy.utils.project import get_project_settings
 
 def run_spider():
     process = CrawlerProcess(get_project_settings())
-    process.crawl('github')
+    process.crawl('github2')
     process.start()
 
 
