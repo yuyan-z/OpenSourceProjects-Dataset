@@ -103,37 +103,11 @@ def get_languages():
     save_json(languages, "data/languages.json")
 
 
-def get_issue():
-    repos = load_json("data/repositories.json")
-    for i, repo in enumerate(repos):
-        print(f"{i}")
-        issues_url = repo["issues_url"]
-        # pulls_url = repo["pulls_url"]
-        params = {
-            "q": f"is:issue",
-            "sort": "comments"
-        }
-
-        response = requests.get(issues_url, headers=HEADERS, params=params)
-        if response.status_code == 200:
-            response_json = response.json()
-            add_to_json(response_json, "data/issues.json")
-            time.sleep(1)
-        else:
-            print(f"Error: status code {response.status_code}")
-            print(response.headers)
-            t = int(response.headers['X-RateLimit-Reset']) - int(time.time())
-            if t < 0: t = 0
-            print(f"sleep: {t + 60}")
-            time.sleep(t)
-        break
-
-
 if __name__ == "__main__":
     # # Get repositories
     # repos = get_repos_by_stars()
     #
-    # get_languages()
-    get_issue()
+    get_languages()
+
 
 
