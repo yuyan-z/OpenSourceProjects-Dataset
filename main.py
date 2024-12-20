@@ -42,13 +42,12 @@ def get_repos_by_stars(stars=10000):
         "per_page": 100,
     }
 
-    # total_count = 0
-    # response = requests.get(url, params=params, headers=HEADERS)
-    # if response.status_code == 200:
-    #     total_count = response.json()['total_count']
-    # print(f"Total repositories stars>={stars}: {total_count}")  # 3939
+    total_count = 0
+    response = requests.get(url, params=params, headers=HEADERS)
+    if response.status_code == 200:
+        total_count = response.json()['total_count']
+    print(f"Total repositories stars>={stars}: {total_count}")
 
-    total_count = 3939
     res = load_all_json("data/repository/")
     print(f"Count: {len(res)} / {total_count}")
 
@@ -105,7 +104,7 @@ def get_languages():
 
 if __name__ == "__main__":
     # # Get repositories
-    # repos = get_repos_by_stars()
+    # repos = get_repos_by_stars(10000)
 
     get_languages()
 
